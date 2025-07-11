@@ -25,10 +25,10 @@ const Login = () => {
 
     try {
       await login(username, password)
-      toast.success("Login successful!")
+      toast.success("Login Berhasil!")
       navigate("/dashboard")
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || "Login failed")
+      toast.error(error.response?.data?.detail || "Login Gagal")
     } finally {
       setIsLoading(false)
     }
@@ -52,7 +52,7 @@ const Login = () => {
           >
             <LogIn style={{ height: "1.5rem", width: "1.5rem", color: "#2563eb" }} />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Login ke akun anda</h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
@@ -90,7 +90,7 @@ const Login = () => {
 
           <div>
             <button type="submit" disabled={isLoading} className="btn btn-primary w-full">
-              {isLoading ? "Signing in..." : "Sign in"}
+              {isLoading ? "Melakukan Login..." : "Login"}
             </button>
           </div>
         </form>

@@ -35,7 +35,7 @@ export const RentalTable: React.FC<RentalTableProps> = ({
     { key: "lama_sewa_tahun", label: "Lama Sewa" },
     { key: "pic", label: "PIC" },
     { key: "nomor_hp", label: "Nomor HP" },
-    { key: "state", label: "State" },
+    { key: "state", label: "Kondisi" },
     { key: "file_polis_asuransi_url", label: "File Polis Asuransi" },
     { key: "file_pks_sewa_url", label: "File PKS Sewa" },
     { key: "file_sewa_kode_url", label: "File Sewa Kode" },

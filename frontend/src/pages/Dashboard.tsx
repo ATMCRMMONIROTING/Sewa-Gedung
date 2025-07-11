@@ -31,14 +31,12 @@ const Dashboard = () => {
     try {
       setIsLoading(true)
       const response = await authAPI.getAllData()
-      console.log("Raw API response:", response.data) // Enhanced debug log
+      console.log("Raw API response:", response.data)
 
-      // Check if the data has proper structure
       if (response.data && response.data.length > 0) {
         console.log("Sample row structure:", response.data[0])
         console.log("Row keys:", Object.keys(response.data[0]))
 
-        // Check for ID field variations
         const firstRow = response.data[0]
         console.log("ID field check:", {
           id: firstRow.id
@@ -46,9 +44,9 @@ const Dashboard = () => {
       }
 
       setData(response.data)
-      setSelectedRows(new Set()) // Clear selections when data refreshes
+      setSelectedRows(new Set())
     } catch (error: any) {
-      toast.error("Failed to fetch data")
+      toast.error("Gagal mengambil data")
       console.error("Error fetching data:", error)
     } finally {
       setIsLoading(false)
@@ -59,7 +57,6 @@ const Dashboard = () => {
     fetchData()
   }, [])
 
-  // Get unique values for filter dropdowns
   const filterOptions = useMemo(() => {
     const states = [...new Set(data.map((item) => item.state).filter((value): value is string => Boolean(value)))]
     const jenisMesin = [
@@ -75,7 +72,6 @@ const Dashboard = () => {
     return { states, jenisMesin, kcSupervisi, vendorCro }
   }, [data])
 
-  // Filter data
   const filteredData = useMemo(() => {
     return data.filter((item) => {
       return (
@@ -87,7 +83,6 @@ const Dashboard = () => {
     })
   }, [data, filters])
 
-  // Warning items
   const warningItems = useMemo(() => {
     return data.filter((item) => item.state === "warning")
   }, [data])
@@ -112,7 +107,6 @@ const Dashboard = () => {
     const rowElement = document.querySelector(`[data-row-id="${tid}-${lokasi}"]`)
     if (rowElement && tableRef.current) {
       rowElement.scrollIntoView({ behavior: "smooth", block: "center" })
-      // Highlight the row briefly
       rowElement.classList.add("highlight-row")
       setTimeout(() => {
         rowElement.classList.remove("highlight-row")
@@ -158,21 +152,21 @@ const Dashboard = () => {
 
   const handleBatchDelete = async () => {
     if (selectedRows.size === 0) {
-      toast.error("Please select rows to delete")
+      toast.error("Silakan pilih baris yang ingin dihapus")
       return
     }
 
-    if (!confirm(`Are you sure you want to delete ${selectedRows.size} selected row(s)?`)) {
+    if (!confirm(`Apa anda yakin ingin menghapus ${selectedRows.size} barisan ini?`)) {
       return
     }
 
     setIsDeleting(true)
     try {
       await authAPI.batchDelete(Array.from(selectedRows))
-      toast.success(`${selectedRows.size} row(s) deleted successfully!`)
+      toast.success(`${selectedRows.size} baris berhasil dihapus!`)
       fetchData()
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || "Failed to delete rows")
+      toast.error(error.response?.data?.detail || "Gagal menghapus baris")
     } finally {
       setIsDeleting(false)
     }
@@ -181,24 +175,24 @@ const Dashboard = () => {
   const handleExportAll = () => {
     const timestamp = new Date().toISOString().split("T")[0]
     exportToExcel(data, `rental_data_all_${timestamp}`)
-    toast.success("All data exported successfully!")
+    toast.success("Seluruh data berhasil diekspor!")
   }
 
   const handleExportFiltered = () => {
     const timestamp = new Date().toISOString().split("T")[0]
     const filterSuffix = Object.values(filters).some((f) => f) ? "_filtered" : "_all"
     exportToExcel(filteredData, `rental_data${filterSuffix}_${timestamp}`)
-    toast.success("Filtered data exported successfully!")
+    toast.success("Data yang difilter berhasil diekspor!")
   }
 
   const handleAddRow = async (newData: Partial<RentalData>) => {
     try {
       await authAPI.addRow(newData)
-      toast.success("Row added successfully!")
+      toast.success("Baris berhasil ditambahkan!")
       fetchData()
       setShowAddModal(false)
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || "Failed to add row")
+      toast.error(error.response?.data?.detail || "Gagal menambahkan baris")
       console.error("Add row error:", error.response?.data)
     }
   }
@@ -206,20 +200,20 @@ const Dashboard = () => {
   const handleEditCell = async (tid: string, lokasi: string, field: string, value: any) => {
     try {
       await authAPI.editCell(tid, lokasi, field, value)
-      toast.success("Cell updated successfully!")
+      toast.success("Sel berhasil diperbarui!")
       fetchData()
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || "Failed to update cell")
+      toast.error(error.response?.data?.detail || "Gagal memperbarui sel")
     }
   }
 
   const handleFileUpload = async (tid: string, lokasi: string, fileType: string, file: File) => {
     try {
       await authAPI.uploadPdf(tid, lokasi, fileType, file)
-      toast.success("File uploaded successfully!")
+      toast.success("File berhasil diunggah!")
       fetchData()
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || "Failed to upload file")
+      toast.error(error.response?.data?.detail || "Gagal mengunggah File")
     }
   }
 
@@ -246,8 +240,8 @@ const Dashboard = () => {
         <div className="px-4 py-6">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-2xl font-bold">Rental Management Dashboard</h1>
-              <p className="text-muted">Welcome back, {user?.username}!</p>
+              <h1 className="text-2xl font-bold">Dashboard Monitor Sewa Gedung</h1>
+              <p className="text-muted">Selamat datang, {user?.username}!</p>
             </div>
             <div className="flex space-x-3">
               <button onClick={fetchData} className="btn btn-secondary flex items-center space-x-2">
@@ -256,11 +250,11 @@ const Dashboard = () => {
               </button>
               <button onClick={handleExportAll} className="btn btn-secondary flex items-center space-x-2">
                 <Download style={{ height: "1rem", width: "1rem" }} />
-                <span>Export All</span>
+                <span>Export Semua Data</span>
               </button>
               <button onClick={handleExportFiltered} className="btn btn-secondary flex items-center space-x-2">
                 <Download style={{ height: "1rem", width: "1rem" }} />
-                <span>Export Filtered</span>
+                <span>Export Data Filter</span>
               </button>
               {selectedRows.size > 0 && (
                 <button
@@ -269,12 +263,12 @@ const Dashboard = () => {
                   className="btn btn-danger flex items-center space-x-2"
                 >
                   <Trash2 style={{ height: "1rem", width: "1rem" }} />
-                  <span>{isDeleting ? "Deleting..." : `Delete (${selectedRows.size})`}</span>
+                  <span>{isDeleting ? "Menghapus..." : `Delete (${selectedRows.size})`}</span>
                 </button>
               )}
               <button onClick={() => setShowAddModal(true)} className="btn btn-primary flex items-center space-x-2">
                 <Plus style={{ height: "1rem", width: "1rem" }} />
-                <span>Add Row</span>
+                <span>Tambah Barisan Baru</span>
               </button>
             </div>
           </div>
@@ -285,10 +279,9 @@ const Dashboard = () => {
               <div className="flex items-center space-x-2">
                 <AlertTriangle style={{ height: "1.25rem", width: "1.25rem", color: "#f59e0b" }} />
                 <div>
-                  <h3 className="font-medium text-yellow-800">Data Issue Detected</h3>
+                  <h3 className="font-medium text-yellow-800">Terdeksi masalah isu</h3>
                   <p className="text-sm text-yellow-700 mt-1">
-                    {data.length} rows loaded but none have valid IDs. Checkbox selection is disabled. Please check your
-                    backend API response.
+                    {data.length} baris dimuat tetapi tidak ada yang memiliki ID valid. Pemilihan kotak centang dinonaktifkan. Silakan periksa respons API backend Anda.
                   </p>
                 </div>
               </div>
@@ -302,7 +295,7 @@ const Dashboard = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <AlertTriangle style={{ height: "1.25rem", width: "1.25rem", color: "#dc2626" }} />
-                    <h3 className="font-medium text-red-800">Warning Items ({warningItems.length})</h3>
+                    <h3 className="font-medium text-red-800">Peringatan Gedung Yang Perlu Perpanjangan ({warningItems.length})</h3>
                   </div>
                   <button onClick={() => setShowWarningSummary(!showWarningSummary)} className="btn btn-secondary">
                     {showWarningSummary ? (
@@ -351,7 +344,7 @@ const Dashboard = () => {
                     <span>Filters</span>
                   </button>
                   <button onClick={clearFilters} className="btn btn-secondary">
-                    Clear All
+                    Bersihkan Semua Filter
                   </button>
                 </div>
               </div>
@@ -360,13 +353,13 @@ const Dashboard = () => {
               {showFilters && (
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="form-label">State:</label>
+                    <label className="form-label">Kondisi:</label>
                     <select
                       value={filters.state}
                       onChange={(e) => handleFilterChange("state", e.target.value)}
                       className="input"
                     >
-                      <option value="">All States</option>
+                      <option value="">Semua Kondisi</option>
                       {filterOptions.states.map((state) => (
                         <option key={state} value={state}>
                           {state}
@@ -382,7 +375,7 @@ const Dashboard = () => {
                       onChange={(e) => handleFilterChange("jenis_mesin", e.target.value)}
                       className="input"
                     >
-                      <option value="">All Types</option>
+                      <option value="">Semua tipe</option>
                       {filterOptions.jenisMesin.map((jenis) => (
                         <option key={jenis} value={jenis}>
                           {jenis}
@@ -398,7 +391,7 @@ const Dashboard = () => {
                       onChange={(e) => handleFilterChange("kc_supervisi", e.target.value)}
                       className="input"
                     >
-                      <option value="">All KC</option>
+                      <option value="">Semua KC</option>
                       {filterOptions.kcSupervisi.map((kc) => (
                         <option key={kc} value={kc}>
                           {kc}
@@ -414,7 +407,7 @@ const Dashboard = () => {
                       onChange={(e) => handleFilterChange("vendor_cro", e.target.value)}
                       className="input"
                     >
-                      <option value="">All Vendors</option>
+                      <option value="">Semua Vendors</option>
                       {filterOptions.vendorCro.map((vendor) => (
                         <option key={vendor} value={vendor}>
                           {vendor}
@@ -426,7 +419,7 @@ const Dashboard = () => {
               )}
 
               <div className="mt-4 text-sm text-muted">
-                Showing {filteredData.length} of {data.length} records
+                Menampilkan {filteredData.length} dari {data.length} data
                 {selectedRows.size > 0 && ` • ${selectedRows.size} selected`}
                 {validDataCount < data.length && ` • ${validDataCount} selectable`}
               </div>
