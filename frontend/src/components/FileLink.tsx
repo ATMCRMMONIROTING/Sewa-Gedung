@@ -33,7 +33,7 @@ export const FileLink: React.FC<FileLinkProps> = ({ tid, lokasi, fileType, fileU
 
   const handleFileOpen = () => {
     if (fileUrl) {
-      const backendUrl = "http://localhost:8000" // or use environment variable
+      const backendUrl = import.meta.env.VITE_API_URL // or use environment variable
       const fullUrl = `${backendUrl}/${fileUrl}`
       window.open(fullUrl, "_blank")
     }
