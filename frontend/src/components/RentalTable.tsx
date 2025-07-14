@@ -33,6 +33,7 @@ export const RentalTable: React.FC<RentalTableProps> = ({
     { key: "harga_sewa_tahun", label: "Harga Sewa/Tahun" },
     { key: "total_harga_sewa_periode", label: "Total Harga Sewa Periode" },
     { key: "lama_sewa_tahun", label: "Lama Sewa" },
+    { key: "periode_akhir", label: "Tanggal Akhir Sewa"},
     { key: "pic", label: "PIC" },
     { key: "nomor_hp", label: "Nomor HP" },
     { key: "state", label: "Kondisi" },
