@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 from io import BytesIO
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Mapping Indonesian month names to English
 INDO_MONTHS = {
@@ -11,53 +11,75 @@ INDO_MONTHS = {
     'Oktober': 'October', 'November': 'November', 'Desember': 'December'
 }
 
-def parse_indonesian_month_year(date_str):
-    if isinstance(date_str, str):
+# Excel serial number base date (Excel uses 1899-12-30 for Windows)
+EXCEL_BASE_DATE = datetime(1899, 12, 30)
+
+def excel_serial_to_date(value):
+    """Convert Excel serial number to datetime string (YYYY-MM)."""
+    try:
+        serial = int(float(value))
+        dt = EXCEL_BASE_DATE + timedelta(days=serial)
+        return dt.strftime("%Y-%m")
+    except Exception:
+        return value  # keep original if not convertible
+
+def parse_indonesian_month_year(date_val):
+    """Parse Indonesian month-year strings, Excel serials, or datetime objects."""
+    # Handle numbers (Excel serials)
+    if isinstance(date_val, (int, float)):
+        return excel_serial_to_date(date_val)
+
+    # Handle datetime objects directly
+    if isinstance(date_val, datetime):
+        return date_val.strftime("%Y-%m")
+
+    # Handle strings
+    if isinstance(date_val, str):
+        # Try Excel serial stored as string
+        if date_val.isdigit():
+            return excel_serial_to_date(date_val)
+
+        # Replace Indonesian months with English
         for indo, eng in INDO_MONTHS.items():
-            date_str = date_str.replace(indo, eng)
+            date_val = date_val.replace(indo, eng)
 
-        date_str = date_str.strip()
+        date_val = date_val.strip()
 
+        # Try "DD Month YYYY"
         try:
-            dt = datetime.strptime(date_str, "%d %B %Y")
+            dt = datetime.strptime(date_val, "%d %B %Y")
             return dt.strftime("%Y-%m")
         except ValueError:
             pass
 
+        # Try "Month YYYY"
         try:
-            dt = datetime.strptime("1 " + date_str, "%d %B %Y")
+            dt = datetime.strptime("1 " + date_val, "%d %B %Y")
             return dt.strftime("%Y-%m")
         except ValueError:
-            return None
+            return date_val  # fallback: keep as-is
 
-    elif isinstance(date_str, datetime):
-        return date_str.strftime("%Y-%m")
-
-    return None
+    return date_val
 
 def clean_currency(value):
     if isinstance(value, str):
-        value = value.strip()
-        if not re.search(r'\d', value):
+        v = value.strip()
+        if not re.search(r'\d', v):
             return value
-        value = value.replace("Rp", "").replace(".", "").replace(" ", "").replace("-","")
-        value = value.replace(",", ".")
-
+        v = v.replace("Rp", "").replace(".", "").replace(",", "").replace("-", "").replace(" ", "")
         try:
-            return float(value)
+            return float(v)
         except ValueError:
-            return None
+            return value
     elif pd.isna(value):
         return None
-    return float(value)
+    return value
 
 def parse_excel(contents: bytes):
-    # Skip the header and title rows, read raw data (skip 5 rows based on your example)
-    df = pd.read_excel(BytesIO(contents), skiprows=5, header=None)
+    df = pd.read_excel(BytesIO(contents), header=0, dtype=str)
 
-    # Define column names to match your DB and Excel layout
     df.columns = [
-        "no", "jenis_mesin", "tid", "kc_supervisi", "lokasi",
+        "jenis_mesin", "tid", "kc_supervisi", "lokasi",
         "vendor_cro", 
         "harga_sewa_tahun", "total_harga_sewa_periode", "lama_sewa_tahun",
         "periode_awal", "periode_akhir", "nomor_polis_asuransi",
@@ -65,14 +87,23 @@ def parse_excel(contents: bytes):
         "pic", "nomor_hp"
     ]
 
-    # Drop 'no' column since it's just a row number
-    df.drop(columns=["no"], inplace=True)
+    # Fix merged cells
+    df.ffill(inplace=True)
 
-    # Clean and convert necessary fields
-    df["tid"] = df["tid"].astype(str)
+    # Clean specific numeric fields
     df["harga_sewa_tahun"] = df["harga_sewa_tahun"].apply(clean_currency)
     df["total_harga_sewa_periode"] = df["total_harga_sewa_periode"].apply(clean_currency)
+
+    # Parse periods (string dates + excel serials)
     df["periode_awal"] = df["periode_awal"].apply(parse_indonesian_month_year)
     df["periode_akhir"] = df["periode_akhir"].apply(parse_indonesian_month_year)
+
+    # Required fields
+    required_fields = ["jenis_mesin", "tid", "kc_supervisi", "lokasi"]
+    df.dropna(subset=required_fields, inplace=True)
+
+    # Clean missing values
+    df.replace({"nan": None, "NaN": None}, inplace=True)
+    df["nomor_hp"] = df["nomor_hp"].fillna("")
 
     return df

@@ -39,7 +39,7 @@ const Dashboard = () => {
 
         const firstRow = response.data[0]
         console.log("ID field check:", {
-          id: firstRow.id
+          id: firstRow.id,
         })
       }
 
@@ -281,7 +281,8 @@ const Dashboard = () => {
                 <div>
                   <h3 className="font-medium text-yellow-800">Terdeksi masalah isu</h3>
                   <p className="text-sm text-yellow-700 mt-1">
-                    {data.length} baris dimuat tetapi tidak ada yang memiliki ID valid. Pemilihan kotak centang dinonaktifkan. Silakan periksa respons API backend Anda.
+                    {data.length} baris dimuat tetapi tidak ada yang memiliki ID valid. Pemilihan kotak centang
+                    dinonaktifkan. Silakan periksa respons API backend Anda.
                   </p>
                 </div>
               </div>
@@ -295,7 +296,9 @@ const Dashboard = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <AlertTriangle style={{ height: "1.25rem", width: "1.25rem", color: "#dc2626" }} />
-                    <h3 className="font-medium text-red-800">Peringatan Gedung Yang Perlu Perpanjangan ({warningItems.length})</h3>
+                    <h3 className="font-medium text-red-800">
+                      Peringatan Gedung Yang Perlu Perpanjangan ({warningItems.length})
+                    </h3>
                   </div>
                   <button onClick={() => setShowWarningSummary(!showWarningSummary)} className="btn btn-secondary">
                     {showWarningSummary ? (

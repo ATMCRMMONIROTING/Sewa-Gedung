@@ -1041,15 +1041,23 @@ select.input {
   background-color: rgba(59, 130, 246, 0.2);
 }
 
-/* Currency cell styles */
-.currency-cell {
-  font-weight: 500;
-  color: #059669;
+/* Added non-editable cell styling for price columns */
+/* Non-editable cell styles - for read-only fields like prices */
+.non-editable-cell {
   padding: 0.5rem;
+  border-radius: 0.25rem;
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-secondary);
+  color: var(--text-muted);
+  font-weight: 500;
+  cursor: not-allowed;
 }
 
-.dark .currency-cell {
-  color: #10b981;
+.dark .non-editable-cell {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
 }
 
 /* Warning summary button hover states */

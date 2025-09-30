@@ -4,7 +4,6 @@ import type React from "react"
 import type { RentalData } from "../services/api"
 import { FileLink } from "./FileLink"
 import { EditableCell } from "./EditableCell"
-import { formatCurrency } from "../utils/formatCurrency"
 import clsx from "clsx"
 
 interface RentalTableProps {
@@ -33,7 +32,7 @@ export const RentalTable: React.FC<RentalTableProps> = ({
     { key: "harga_sewa_tahun", label: "Harga Sewa/Tahun" },
     { key: "total_harga_sewa_periode", label: "Total Harga Sewa Periode" },
     { key: "lama_sewa_tahun", label: "Lama Sewa" },
-    { key: "periode_akhir", label: "Tanggal Akhir Sewa"},
+    { key: "periode_akhir", label: "Tanggal Akhir Sewa" },
     { key: "pic", label: "PIC" },
     { key: "nomor_hp", label: "Nomor HP" },
     { key: "state", label: "Kondisi" },
@@ -43,7 +42,7 @@ export const RentalTable: React.FC<RentalTableProps> = ({
   ]
 
   const fileColumns = ["file_polis_asuransi_url", "file_pks_sewa_url", "file_sewa_kode_url"]
-  const currencyColumns = ["harga_sewa_tahun", "total_harga_sewa_periode"]
+  const nonEditableColumns = ["harga_sewa_tahun", "total_harga_sewa_periode"]
 
   // Debug: Log the first few rows to see the data structure
   console.log("First 3 rows of data:", data.slice(0, 3))
@@ -164,9 +163,9 @@ export const RentalTable: React.FC<RentalTableProps> = ({
                         fileName={row[`${column.key.replace("_url", "_name")}` as keyof RentalData] as string}
                         onUpload={onFileUpload}
                       />
-                    ) : currencyColumns.includes(column.key) ? (
-                      <div className="currency-cell">
-                        {formatCurrency(row[column.key as keyof RentalData] as string | number)}
+                    ) : nonEditableColumns.includes(column.key) ? (
+                      <div className="non-editable-cell" title="Non-editable field">
+                        {row[column.key as keyof RentalData] || "-"}
                       </div>
                     ) : (
                       <EditableCell
