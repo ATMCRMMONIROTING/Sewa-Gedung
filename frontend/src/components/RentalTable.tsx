@@ -4,6 +4,7 @@ import type React from "react"
 import type { RentalData } from "../services/api"
 import { FileLink } from "./FileLink"
 import { EditableCell } from "./EditableCell"
+import { formatCurrency } from "../utils/formatCurrency"
 import clsx from "clsx"
 
 interface RentalTableProps {
@@ -44,6 +45,36 @@ export const RentalTable: React.FC<RentalTableProps> = ({
   const fileColumns = ["file_polis_asuransi_url", "file_pks_sewa_url", "file_sewa_kode_url"]
   const nonEditableColumns = ["harga_sewa_tahun", "total_harga_sewa_periode"]
 
+  const formatPriceValue = (value: any): string => {
+    // Handle empty/null values
+    if (value === null || value === undefined || value === "") {
+      return "-"
+    }
+
+    // If it's a number, format it as currency
+    if (typeof value === "number") {
+      return formatCurrency(value)
+    }
+
+    // If it's a string, check if it can be converted to a number
+    if (typeof value === "string") {
+      // Try to clean and parse the string
+      const cleanValue = value.replace(/[^\d.-]/g, "")
+      const numValue = Number(cleanValue)
+
+      // If it's a valid number, format it as currency
+      if (!isNaN(numValue) && cleanValue !== "") {
+        return formatCurrency(numValue)
+      }
+
+      // Otherwise, return the original string as-is
+      return value
+    }
+
+    // Fallback: return as string
+    return String(value)
+  }
+
   // Debug: Log the first few rows to see the data structure
   console.log("First 3 rows of data:", data.slice(0, 3))
 
@@ -66,14 +97,14 @@ export const RentalTable: React.FC<RentalTableProps> = ({
 
   const handleSelectAllChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation()
-    console.log("Header checkbox clicked:", e.target.checked)
-    console.log("Valid data for selection:", validData.length)
+    console.log("[v0] Header checkbox clicked:", e.target.checked)
+    console.log("[v0] Valid data for selection:", validData.length)
     onSelectAll(e.target.checked)
   }
 
   const handleRowSelectChange = (e: React.ChangeEvent<HTMLInputElement>, rowId: number) => {
     e.stopPropagation()
-    console.log("Row checkbox clicked:", rowId, e.target.checked)
+    console.log("[v0] Row checkbox clicked:", rowId, e.target.checked)
     onRowSelect(rowId, e.target.checked)
   }
 
@@ -164,8 +195,8 @@ export const RentalTable: React.FC<RentalTableProps> = ({
                         onUpload={onFileUpload}
                       />
                     ) : nonEditableColumns.includes(column.key) ? (
-                      <div className="non-editable-cell" title="Non-editable field">
-                        {row[column.key as keyof RentalData] || "-"}
+                      <div className="non-editable-cell" title="Non-editable field - displays database value">
+                        {formatPriceValue(row[column.key as keyof RentalData])}
                       </div>
                     ) : (
                       <EditableCell

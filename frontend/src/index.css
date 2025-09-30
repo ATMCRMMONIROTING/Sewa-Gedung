@@ -1041,7 +1041,7 @@ select.input {
   background-color: rgba(59, 130, 246, 0.2);
 }
 
-/* Added non-editable cell styling for price columns */
+/* Non-editable cell styles - for read-only fields like prices */
 /* Non-editable cell styles - for read-only fields like prices */
 .non-editable-cell {
   padding: 0.5rem;
@@ -1050,9 +1050,10 @@ select.input {
   display: flex;
   align-items: center;
   background-color: var(--bg-secondary);
-  color: var(--text-muted);
-  font-weight: 500;
-  cursor: not-allowed;
+  color: var(--text-primary);
+  font-weight: 400;
+  cursor: default;
+  opacity: 0.9;
 }
 
 .dark .non-editable-cell {
